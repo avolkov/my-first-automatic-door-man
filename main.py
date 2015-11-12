@@ -93,7 +93,7 @@ while True:
     frameHeight, frameWidth = sensorFrame.shape[:2]
     sensorFramePixels = frameHeight * frameWidth
 
-    if cv2.countNonZero(sensorFrame) > sensorFramePixels * 0.6:
+    if cv2.countNonZero(sensorFrame) > sensorFramePixels * 0.4:
         isSensorActivated = True
     else:
         isSensorActivated = False
@@ -123,7 +123,7 @@ while True:
 
     wasSensorActivated = isSensorActivated
 
-    cv2.rectangle(diffFrame, ((width/5)*2,(height/5)*2), ((width/5)*3,(height/5)*3) ,(255, 255, 255), 1)
+    cv2.rectangle(diffFrame, ((width/5)*2,(height/5)*2), ((width/5)*3,(height/5)*3), (255, 255, 255), 1)
     cv2.imshow('diff', diffFrame)
 
     k = cv2.waitKey(30) & 0xff
