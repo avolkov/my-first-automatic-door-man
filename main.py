@@ -69,6 +69,7 @@ def getGreetingMessage(callingName):
 
 
 # START READING HERE
+## This assumes that there exists /dev/video0 --> doesn't work with raspberry pi camera
 cap = cv2.VideoCapture(0)
 
 
