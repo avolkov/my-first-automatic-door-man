@@ -1,14 +1,13 @@
+
 import numpy as np
 import cv2
 import os
-from BluetoothSurveyor import BluetoothSurveyor
 import subprocess
 from datetime import datetime
 import random
 
 
 BLUR = 15
-knownPeople = {'42:4B:F9:AB:0D:5C': ("Thiago", "Old sport")}
 presetMessages = [
     "Nice weather today isn't it,",
     "Nice shirt,",
@@ -18,7 +17,8 @@ presetMessages = [
     "I'm not being paid enough for this",
     "Good morning. No.   Wait. Good afternoon. No.   \
 Wait. Good morning. No. Wait. Nevermind",
-    "I think I've saw you before"]
+    "I think I've saw you before"
+]
 
 
 def getAdjustedThreshhold(cap):
@@ -68,9 +68,9 @@ def getGreetingMessage(callingName):
     return message
 
 
-###### START READING HERE ##########
+# START READING HERE
 cap = cv2.VideoCapture(0)
-bluetoothSurveyor = BluetoothSurveyor()
+
 
 print "Adjusting..."
 threshold = getAdjustedThreshhold(cap)
@@ -114,19 +114,8 @@ while True:
         greeted = False
         message = ''
 
-        for mac in knownPeople:
-            lastTime = bluetoothSurveyor.getDeviceLastSeenAgeInSecondsByMAC(
-                mac)
-
-            if lastTime is not None and lastTime < 180:  # known person found
-                message = getGreetingMessage(knownPeople[mac][1])
-                greeted = True
-                break
-
         if not greeted:
             message = getGreetingMessage(None)
-        else:
-            del knownPeople[mac]
 
         process1 = subprocess.Popen(["echo", message], stdout=subprocess.PIPE)
         process2 = subprocess.Popen(
