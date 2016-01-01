@@ -1,24 +1,15 @@
 
 import numpy as np
 import cv2
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 import os
-import subprocess
+
 from datetime import datetime
 import random
 
 
 BLUR = 15
-presetMessages = [
-    "Nice weather today isn't it,",
-    "Nice shirt,",
-    "Have a wonderful day,",
-    "Nice to see you here,",
-    "I'm running out of greetings again",
-    "I'm not being paid enough for this",
-    "Good morning. No.   Wait. Good afternoon. No.   \
-Wait. Good morning. No. Wait. Nevermind",
-    "I think I've saw you before"
-]
 
 
 def getAdjustedThreshhold(cap):
@@ -43,34 +34,12 @@ def getAdjustedThreshhold(cap):
     return i
 
 
-def getGreetingMessage(callingName):
-
-    message = ''
-
-    rand = int(random.random() * 2)
-
-    if rand == 0:  # time based greeting
-        currentHour = datetime.now().hour
-        if currentHour >= 5 and currentHour <= 11:
-            message += "Good morning,"
-        elif currentHour >= 12 and currentHour <= 5:
-            message += "Good afternoon,"
-        elif currentHour >= 6 and currentHour <= 9:
-            message += "Good evening,"
-        else:
-            message += "Good night,"
-    else:  # vague greeting
-        message += presetMessages[(int)(random.random() * len(presetMessages))]
-
-    if callingName is not None:
-        message += " " + callingName
-
-    return message
-
-
 # START READING HERE
 ## This assumes that there exists /dev/video0 --> doesn't work with raspberry pi camera
-cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(0)
+
+camera = PiCamera()
+cap = PiRGBArray(camera)
 
 
 print "Adjusting..."
@@ -112,17 +81,9 @@ while True:
 
     if isSensorActivated and not wasSensorActivated:
 
-        greeted = False
-        message = ''
+        #sensor stuff happening here
 
-        if not greeted:
-            message = getGreetingMessage(None)
 
-        process1 = subprocess.Popen(["echo", message], stdout=subprocess.PIPE)
-        process2 = subprocess.Popen(
-            ["text2wave"], stdin=process1.stdout, stdout=subprocess.PIPE)
-        subprocess.Popen(["play", "-t", "wav", "-", "tempo",
-                          str(0.8), "pitch", str(-100)], stdin=process2.stdout)
 
     wasSensorActivated = isSensorActivated
 
