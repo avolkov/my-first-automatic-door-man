@@ -3,7 +3,7 @@ from picamera import PiCamera
 import time
 import cv2
 
-#http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/
+# http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/
 
 # initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
@@ -26,7 +26,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
     # clear the stream in preparation for the next frame
     rawCapture.truncate(0)
-
+p
     # if the `q` key was pressed, break from the loop
     if key == ord("q"):
         break
