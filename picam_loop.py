@@ -29,13 +29,14 @@ class adjust_threshold(object):
         Run threshold adjustment for THRESHOLD_ADJUST_MAX cycles.
         Here be dragons.
         """
-        if not self.baseframe:
+        if self.baseframe is None:
             self.baseframe = blur_gray(image)
             return
 
         frame = blur_gray(image)
         diff = cv2.absdiff(frame, self.baseframe)
-        diff = cv2.threshold(diff, self.counter, 255, cv2.THRESH_BINARY)
+        _, diff = cv2.threshold(diff, self.counter, 255, cv2.THRESH_BINARY)
+
         if cv2.countNonZero(diff) == 0:
             self._threshold = self.counter + 5
             self.adjustement_complete = True
@@ -76,7 +77,7 @@ class doorman(object):
 
         :param image: picamera/cv2 image array
         """
-        if not self.baseframe:
+        if self.baseframe is None:
             self.baseframe = blur_gray(image)
             return
 
@@ -154,13 +155,11 @@ def frame_loop(camera, capture, func=None):
     for frame in camera.capture_continuous(
                     capture, format="bgr", use_video_port=True):
         image = frame.array
-        cv2.imshow("Frame", image)
-        cv2.imshow("Frame", image)
+        if func:
+            func(image)
         key = cv2.waitKey(1) & 0xFF
-
         # clear the stream in preparation for the next frame
         capture.truncate(0)
-
         # if the `q` key was pressed, break from the loop
         if key == ord("q"):
             break
