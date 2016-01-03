@@ -3,7 +3,44 @@ from picamera import PiCamera
 from espeak import espeak
 import cv2
 
+from datetime import datetime
+from random import choice
+
 BLUR = (15, 15)
+
+time_greeting = (
+    ((21, 24), "Good Night"),
+    ((0, 11), "Good Morning"),
+    ((11, 17), "Good Afternoon"),
+    ((17, 21), "Good Evening"),
+)
+
+message_greeting = (
+    "Nice weather today isn't it,",
+    "Nice shirt,",
+    "Have a wonderful day,",
+    "Nice to see you here,",
+    "I'm running out of greetings again",
+    "I'm not being paid enough for this",
+    "Good morning. No.   Wait. Good afternoon. No.   \
+Wait. Good morning. No. Wait. Nevermind",
+    "I think I've saw you before"
+)
+
+
+def rand_greet():
+    """Choose between time-based and randomly selected phrase greeting"""
+
+    def time_greet():
+        hour = datetime.now().hour
+        for t_range, greet in time_greeting:
+            if hour > t_range[0] and hour <= t_range[1]:
+                return greet
+
+    def rand_greet():
+        return choice(message_greeting)
+
+    return choice((time_greet, rand_greet))()
 
 
 def blur_gray(in_frame):
@@ -100,7 +137,7 @@ class doorman(object):
             self.sensor_active = False
 
         if self.sensor_active and not self.sensor_activated:
-            espeak.synth("Well, hello")
+            espeak.synth(rand_greet())
 
         self.sensor_activated = self.sensor_active
 
