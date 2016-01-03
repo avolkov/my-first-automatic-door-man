@@ -174,6 +174,7 @@ Default 640x480.
     camera = PiCamera()
     camera.resolution = resolution
     camera.framerate = framerate
+    camera.vflip = True
     raw_capture = PiRGBArray(camera, size=resolution)
     return (camera, raw_capture)
 
