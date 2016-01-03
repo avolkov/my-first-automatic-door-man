@@ -44,10 +44,8 @@ def rand_greet():
 
 
 def blur_gray(in_frame):
-    out_frame = cv2.blur(in_frame, BLUR)
-    # TODO conver to gray with picam
-    out_frame = cv2.cvtColor(out_frame, cv2.COLOR_BGR2GRAY)
-    return out_frame
+    """Blur image and turn it into grayscale/bw"""
+    return cv2.cvtColor(cv2.blur(in_frame, BLUR), cv2.COLOR_BGR2GRAY)
 
 
 class adjust_threshold(object):
