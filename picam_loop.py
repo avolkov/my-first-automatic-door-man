@@ -8,6 +8,7 @@ BLUR = (15, 15)
 
 def blur_gray(in_frame):
     out_frame = cv2.blur(in_frame, BLUR)
+    # TODO conver to gray with picam
     out_frame = cv2.cvtColor(out_frame, cv2.COLOR_BGR2GRAY)
     return out_frame
 
@@ -56,17 +57,71 @@ class adjust_threshold(object):
 
 
 class doorman(object):
+    """Automatic doorman"""
 
-    def __init__(self):
-        pass
+    def __init__(self, adj):
+        """
+        Initialize automatic doorman
 
-    def doorman_detect(self, frame):
-        frame = cv2.blur(frame, BLUR)
-        # TODO conver to gray with picam
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        :param adj: an instance of adjust_threshold
+        """
+        self.adj = adj
+        self.baseframe = None
+        self.sensor_active = False
+        self.sensor_activated = False
+
+    def detect(self, image):
+        """
+        Movement detection code, here be [some] dragons
+
+        :param image: picamera/cv2 image array
+        """
+        if not self.baseframe:
+            self.baseframe = blur_gray(image)
+            return
+
+        frame = blur_gray(image)
+        diff_frame = cv2.absdiff(frame, self.baseframe)
+        _, diff_frame = cv2.threshold(
+            diff_frame, self.adj.threshold, 255, cv2.THRESH_BINARY)
+
+        h, w = diff_frame.shape[:2]
+        sensor_frame = diff_frame[
+            (h / 5) * 2:(h / 5) * 3,
+            (w / 5) * 2:(w / 5) * 3
+        ]
+        frame_h, frame_w = sensor_frame.shape[:2]
+        sensor_frame_px = frame_h * frame_w
+
+        if cv2.countNonZero(sensor_frame) > sensor_frame_px * 0.4:
+            self.sensor_active = True
+        else:
+            self.sensor_active = False
+
+        if self.sensor_active and not self.sensor_activated:
+            print("Movement!!!")
+
+        self.sensor_activated = self.sensor_active
+
+        cv2.rectangle(
+            diff_frame,
+            ((w / 5) * 2, (h / 5) * 2),
+            ((w / 5) * 3, (h / 5) * 3),
+            (255, 255, 255), 1
+        )
+        cv2.imshow('diff', diff_frame)
 
     def process_frame(self, image):
-        pass
+        """
+        Process Frames, run through composited threshold code if threshold
+        hasn't been adjusted, then run movement detection method.
+
+        :param image: picamera/cv2 image array
+        """
+        if not self.adj._adjusted:
+            self.adj.run_adjustment(image)
+        else:
+            self.detect(image)
 
 
 def init_camera(resolution=(640, 480), framerate=32):
@@ -113,4 +168,6 @@ def frame_loop(camera, capture, func=None):
 
 if __name__ == '__main__':
     camera, capture = init_camera()
-    frame_loop(camera, capture)
+    adj = adjust_threshold()
+    active_doorman = doorman(adj)
+    frame_loop(camera, capture, func=active_doorman.process_frame)
