@@ -1,6 +1,6 @@
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-#import time
+from espeak import espeak
 import cv2
 
 BLUR = (15, 15)
@@ -100,7 +100,7 @@ class doorman(object):
             self.sensor_active = False
 
         if self.sensor_active and not self.sensor_activated:
-            print("Movement!!!")
+            espeak.synth("Well, hello")
 
         self.sensor_activated = self.sensor_active
 
